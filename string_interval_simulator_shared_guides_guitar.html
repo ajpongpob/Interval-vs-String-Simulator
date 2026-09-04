@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#f3f1eb">
+<title>String Length & Interval Simulator</title>
+<style>
+:root{--bg:#f3f1eb;--card:#fff;--text:#18222b;--muted:#6d7881;--line:#d6dbe0;--ref:#2f7fa7;--cmp:#be7a24}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif}
+button{font:inherit;touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none}.app{height:100%;max-width:1250px;margin:auto;padding:7px;display:grid;grid-template-rows:28px minmax(0,1fr);gap:6px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:0 3px}.title{font-size:clamp(.95rem,1.8vw,1.22rem);font-weight:900;letter-spacing:-.02em}.base{font-size:.68rem;color:var(--muted);white-space:nowrap}.main{min-height:0;display:grid;grid-template-columns:1.03fr .97fr;gap:6px}.panel{min-width:0;min-height:0;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:7px;overflow:hidden}.head{height:22px;display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:4px}.head strong{font-size:.75rem}.badge{font-size:.57rem;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:2px 5px;white-space:nowrap}
+/* left */
+.left{display:grid;grid-template-rows:22px minmax(0,1fr) auto auto auto;gap:4px}.instrument{min-height:0;border:1px solid #c7ae8b;border-radius:9px;background:#d7c1a0;overflow:hidden}.mono{display:block;width:100%;height:100%}.mc-ref{stroke:var(--ref);stroke-width:5;stroke-linecap:round}.mc-cmp{stroke:var(--cmp);stroke-width:5;stroke-linecap:round}.mc-unused{stroke:#816f60;stroke-width:2;stroke-dasharray:7 7;opacity:.52}.mc-guide{stroke:#4d3d2e;stroke-width:1;stroke-dasharray:5 6;opacity:.46}.mc-nut{fill:#e7dfd3;stroke:#857869;stroke-width:2}.mc-bridge{fill:#e5cfa8;stroke:#886f53;stroke-width:2}.mc-peg{fill:#72543a;stroke:#4d3929;stroke-width:2}.mc-label{font-size:15px;font-weight:800;paint-order:stroke;stroke:#f1e4d2;stroke-width:5px}.mc-label.ref{fill:var(--ref)}.mc-label.cmp{fill:var(--cmp)}.mc-small{font-size:12px;fill:#493b30}.mc-measure{font-size:13px;font-weight:800;fill:#302922}
+.ratios{display:grid;grid-template-columns:repeat(6,1fr);gap:3px}.ratio{height:37px;border:1px solid var(--line);border-radius:7px;background:#fff;color:var(--text);padding:3px 2px;cursor:pointer}.ratio strong{display:block;font-size:.62rem;line-height:1.05}.ratio span{display:block;font-size:.52rem;color:var(--muted);margin-top:2px}.ratio.active{border:2px solid var(--ref);background:#f2f8fa}.audio{display:grid;grid-template-columns:repeat(3,1fr);gap:3px}.play{height:38px;border:0;border-radius:7px;font-size:.65rem;font-weight:900;cursor:pointer}.play.ref{background:#dff0f7;color:#1e6282}.play.cmp{background:#f7ead8;color:#8b5817}.play.both{background:#e7ebee;color:#303b43}.relation{text-align:center;font-size:.63rem;line-height:1.2;color:var(--muted);white-space:normal;overflow:hidden}.relation b{color:var(--text)}.relation .credit{display:block;font-size:.50rem;margin-top:1px}.relation a{color:inherit}
+/* right */
+.right{display:grid;grid-template-rows:22px minmax(0,1fr) 22px;gap:4px}.wave-stack{position:relative;min-height:0;display:grid;grid-template-rows:1fr 1fr;gap:4px;padding:4px;border-radius:8px;background:#18232d;overflow:hidden}.shared-guides{position:absolute;inset:4px;pointer-events:none;z-index:0}.shared-line{position:absolute;top:0;bottom:0;width:1px;background:rgba(255,255,255,.42)}.shared-line.common{width:2px;background:rgba(255,255,255,.96);box-shadow:0 0 0 1px rgba(0,0,0,.08)}.wavebox{position:relative;z-index:1;min-height:0;border:1px solid rgba(255,255,255,.16);border-radius:7px;padding:4px;display:grid;grid-template-rows:16px minmax(0,1fr);background:rgba(0,0,0,.08)}.wlabel{display:flex;justify-content:space-between;gap:5px;align-items:center;font-size:.58rem;color:#f4f7f9}.wlabel span{color:#b6c0c7}.wave{display:block;width:100%;height:100%;min-height:0;background:transparent;border-radius:5px}.axis{stroke:rgba(255,255,255,.28);stroke-width:1}.cycle-guide{stroke:rgba(255,255,255,.13);stroke-width:1}.cycle-guide.major{stroke:rgba(255,255,255,.38);stroke-width:1.2}.path-ref{fill:none;stroke:var(--ref);stroke-width:3.2}.path-cmp{fill:none;stroke:var(--cmp);stroke-width:3.2}.dot-ref{fill:var(--ref)}.dot-cmp{fill:var(--cmp)}.cycles{display:flex;align-items:center;justify-content:center;gap:7px;font-size:.6rem;color:var(--muted)}.cycles b{font-size:.85rem;color:var(--text)}
+@media(max-width:700px){
+ .app{padding:5px;grid-template-rows:24px minmax(0,1fr);gap:4px}
+ .ratio,.play{touch-action:manipulation}.top{padding:0 2px}.title{font-size:.93rem}.base{font-size:.55rem}.main{grid-template-columns:1fr;grid-template-rows:minmax(0,53fr) minmax(0,47fr);gap:4px}.panel{padding:5px;border-radius:9px}.left{grid-template-rows:18px minmax(0,1fr) auto auto auto;gap:3px}.right{grid-template-rows:18px minmax(0,1fr) 18px;gap:3px}.head{height:18px;margin:0}.head strong{font-size:.68rem}.badge{font-size:.5rem}.ratios{grid-template-columns:repeat(3,1fr);gap:2px}.ratio{height:30px;padding:2px}.ratio strong{font-size:.57rem}.ratio span{font-size:.47rem}.play{height:34px;font-size:.59rem}.relation{font-size:.56rem}.wavebox{padding:3px;grid-template-rows:14px minmax(0,1fr)}.wlabel{font-size:.52rem}.cycles{font-size:.54rem}.cycles b{font-size:.75rem}.mc-label{font-size:16px}.mc-measure{font-size:14px}.mc-small{font-size:13px}}
+@media(max-width:390px){.title{font-size:.84rem}.base{font-size:.5rem}.ratio strong{font-size:.52rem}.ratio span{font-size:.44rem}.play{font-size:.54rem}}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="top"><div class="title">String Length & Interval Simulator</div><div class="base">Reference: 100 cm · 220 Hz · f ∝ 1/L</div></div>
+  <div class="main">
+    <section class="panel left">
+      <div class="head"><strong>Monochord</strong><span class="badge" id="intervalBadge">Perfect Fifth</span></div>
+      <div class="instrument">
+        <svg class="mono" viewBox="0 0 1000 500" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Monochord showing different vibrating string lengths">
+          <defs>
+            <linearGradient id="wood" x1="0" x2="1"><stop offset="0%" stop-color="#b57a49"/><stop offset="20%" stop-color="#ce9a68"/><stop offset="50%" stop-color="#a96940"/><stop offset="80%" stop-color="#c98f5c"/><stop offset="100%" stop-color="#975d38"/></linearGradient>
+            <pattern id="grain" width="90" height="30" patternUnits="userSpaceOnUse"><path d="M0 12 C25 3 55 22 90 10" fill="none" stroke="#78482d" stroke-opacity=".2" stroke-width="2"/><path d="M0 22 C28 12 57 32 90 18" fill="none" stroke="#efc9a1" stroke-opacity=".14" stroke-width="1.5"/></pattern>
+            <filter id="shadow"><feDropShadow dx="0" dy="7" stdDeviation="7" flood-opacity=".24"/></filter>
+          </defs>
+          <rect x="38" y="45" width="924" height="345" rx="34" fill="url(#wood)" filter="url(#shadow)"/><rect x="58" y="65" width="884" height="305" rx="24" fill="url(#grain)"/>
+          <ellipse cx="790" cy="220" rx="65" ry="46" fill="#68422b" opacity=".6"/><ellipse cx="790" cy="220" rx="49" ry="34" fill="#2c211b" opacity=".84"/>
+          <rect x="84" y="115" width="39" height="174" rx="8" fill="#694b36"/><circle class="mc-peg" cx="77" cy="158" r="18"/><circle class="mc-peg" cx="77" cy="253" r="18"/>
+          <rect class="mc-nut" x="124" y="123" width="20" height="158" rx="4"/><rect class="mc-nut" x="888" y="123" width="20" height="158" rx="4"/>
+          <line class="mc-ref" x1="136" y1="170" x2="898" y2="170"/><line class="mc-cmp" id="mcCmp" x1="136" y1="252" x2="644" y2="252"/><line class="mc-unused" id="mcUnused" x1="644" y1="252" x2="898" y2="252"/><rect class="mc-bridge" id="mcBridge" x="636" y="211" width="16" height="82" rx="4"/>
+          <text class="mc-label ref" x="188" y="155">Reference</text><text class="mc-label cmp" x="188" y="237">Compared</text>
+          <line class="mc-guide" x1="136" y1="318" x2="898" y2="318"/><line class="mc-guide" x1="136" y1="307" x2="136" y2="330"/><line class="mc-guide" x1="898" y1="307" x2="898" y2="330"/><text class="mc-measure" x="517" y="312" text-anchor="middle">L₁ = 100 cm</text>
+          <line class="mc-guide" id="cmpMeasure" x1="136" y1="349" x2="644" y2="349"/><line class="mc-guide" x1="136" y1="338" x2="136" y2="361"/><line class="mc-guide" id="cmpEnd" x1="644" y1="338" x2="644" y2="361"/><text class="mc-measure" id="cmpLabel" x="390" y="343" text-anchor="middle">L₂ = 66.67 cm = 2/3 L₁</text>
+          <text class="mc-small" x="136" y="410">fixed nut</text><text class="mc-small" id="bridgeText" x="644" y="410" text-anchor="middle">movable bridge</text>
+        </svg>
+      </div>
+      <div class="ratios" id="ratioButtons"></div>
+      <div class="audio"><button type="button" class="play ref" id="playRef">▶ Reference</button><button type="button" class="play cmp" id="playCmp">▶ Compared</button><button type="button" class="play both" id="playBoth">▶ Both</button></div>
+      <div class="relation" id="relation"></div>
+    </section>
+
+    <section class="panel right">
+      <div class="head"><strong>Wave cycles</strong><span class="badge">shared white guides</span></div>
+      <div class="wave-stack">
+        <div class="shared-guides" id="sharedGuides"></div>
+        <div class="wavebox"><div class="wlabel"><b style="color:var(--ref)">Reference</b><span id="refWaveLabel"></span></div><svg class="wave" viewBox="0 0 840 220"><g id="refGuides"></g><line class="axis" x1="0" y1="110" x2="840" y2="110"/><path class="path-ref" id="refPath"/><g id="refDots"></g></svg></div>
+        <div class="wavebox"><div class="wlabel"><b style="color:var(--cmp)">Compared</b><span id="cmpWaveLabel"></span></div><svg class="wave" viewBox="0 0 840 220"><g id="cmpGuides"></g><line class="axis" x1="0" y1="110" x2="840" y2="110"/><path class="path-cmp" id="cmpPath"/><g id="cmpDots"></g></svg></div>
+      </div>
+      <div class="cycles"><span>Reference <b id="refCycles">2</b></span><span>:</span><span>Compared <b id="cmpCycles">3</b> cycles</span></div>
+    </section>
+  </div>
+</div>
+<script>
+(()=>{
+const ratios=[{name:"Unison",short:"P1",ln:1,ld:1,fn:1,fd:1},{name:"Octave",short:"P8",ln:1,ld:2,fn:2,fd:1},{name:"Perfect Fifth",short:"P5",ln:2,ld:3,fn:3,fd:2},{name:"Perfect Fourth",short:"P4",ln:3,ld:4,fn:4,fd:3},{name:"Whole Tone",short:"M2",ln:8,ld:9,fn:9,fd:8},{name:"Major Third",short:"M3",ln:4,ld:5,fn:5,fd:4}];
+const baseHz=220,baseCm=100,$=id=>document.getElementById(id);let current=2,audioCtx=null,buttons=$("ratioButtons");
+const frac=(n,d)=>n===d?"1/1":`${n}/${d}`;
+ratios.forEach((r,i)=>{let b=document.createElement("button");b.type="button";b.className="ratio";b.innerHTML=`<strong>${r.name}</strong><span>L ${r.ln}:${r.ld} · f ${r.fn}:${r.fd}</span>`;b.addEventListener("click",()=>{current=i;render()});buttons.appendChild(b)});
+function sine(c){let d="",W=840,mid=110,amp=76,s=1000;for(let i=0;i<=s;i++){let x=W*i/s,y=mid-Math.sin((i/s)*Math.PI*2*c)*amp;d+=(i?"L":"M")+x.toFixed(2)+","+y.toFixed(2)+" ";}return d}
+function guides(c,cls){let lines="",dots="",W=840,mid=110,amp=76,qmax=c*4;for(let q=0;q<=qmax;q++){let x=W*q/qmax,major=q%4===0,y=mid-Math.sin((q/4)*Math.PI*2)*amp;lines+=`<line class="cycle-guide ${major?"major":""}" x1="${x}" y1="7" x2="${x}" y2="213"/>`;dots+=`<circle class="${cls}" cx="${x}" cy="${y}" r="${major?4:3}"/>`;}return{lines,dots}}
+function sharedGuides(refCycles,cmpCycles){
+  const pts=new Map();
+  function add(n,kind){
+    for(let i=0;i<=n;i++){
+      const p=i/n,key=p.toFixed(6);
+      if(!pts.has(key))pts.set(key,{p,ref:false,cmp:false});
+      pts.get(key)[kind]=true;
+    }
+  }
+  add(refCycles,"ref");add(cmpCycles,"cmp");
+  return [...pts.values()].sort((a,b)=>a.p-b.p).map(x=>
+    `<i class="shared-line ${x.ref&&x.cmp?"common":""}" style="left:${(x.p*100).toFixed(4)}%"></i>`
+  ).join("");
+}
+function render(){let r=ratios[current],lr=r.ln/r.ld,fr=r.fn/r.fd,cmpCm=baseCm*lr,cmpHz=baseHz*fr;$("intervalBadge").textContent=`${r.name} (${r.short})`;[...buttons.children].forEach((b,i)=>b.classList.toggle("active",i===current));let left=136,right=898,x=left+(right-left)*lr;$("mcCmp").setAttribute("x2",x);$("mcUnused").setAttribute("x1",x);$("mcBridge").setAttribute("x",x-8);$("cmpMeasure").setAttribute("x2",x);$("cmpEnd").setAttribute("x1",x);$("cmpEnd").setAttribute("x2",x);$("bridgeText").setAttribute("x",x);$("cmpLabel").setAttribute("x",(left+x)/2);$("cmpLabel").textContent=`L₂ = ${cmpCm.toFixed(2)} cm = ${frac(r.ln,r.ld)} L₁`;let rc=r.fd,cc=r.fn;$("refCycles").textContent=rc;$("cmpCycles").textContent=cc;$("refWaveLabel").textContent=`220 Hz · ${rc} cycles`;$("cmpWaveLabel").textContent=`${cmpHz.toFixed(2)} Hz · ${cc} cycles`;$("refPath").setAttribute("d",sine(rc));$("cmpPath").setAttribute("d",sine(cc));let a=guides(rc,"dot-ref"),b=guides(cc,"dot-cmp");$("refGuides").innerHTML=a.lines;$("refDots").innerHTML=a.dots;$("cmpGuides").innerHTML=b.lines;$("cmpDots").innerHTML=b.dots;$("sharedGuides").innerHTML=sharedGuides(rc,cc);
+$("relation").innerHTML=`<b>${r.name}</b> · L₂ = <b>${frac(r.ln,r.ld)}</b>L₁ → f₂ = <b>${frac(r.fn,r.fd)}</b>f₁<span class="credit">Guitar sample: FreePats Spanish Classical Guitar · CC0 1.0</span>`;}
+const SAMPLE_SOURCES=[
+  {
+    url:"https://raw.githubusercontent.com/freepats/spanish-classical-guitar/main/samples/A3.flac",
+    label:"FreePats Spanish Classical Guitar A3 (CC0 1.0)"
+  },
+  {
+    url:"https://raw.githubusercontent.com/nbrosowsky/tonejs-instruments/master/samples/guitar-nylon/A3.mp3",
+    label:"tonejs-instruments nylon guitar A3 (CC BY 3.0)"
+  }
+];
+let sampleBuffer=null,samplePromise=null,sampleSourceLabel="";
+function ctx(){
+  if(!audioCtx){
+    const AC=window.AudioContext||window.webkitAudioContext;
+    if(!AC)return null;
+    audioCtx=new AC();
+  }
+  if(audioCtx.state==="suspended")audioCtx.resume();
+  return audioCtx;
+}
+async function loadSample(){
+  const c=ctx();
+  if(!c)return null;
+  if(sampleBuffer)return sampleBuffer;
+  if(samplePromise)return samplePromise;
+
+  samplePromise=(async()=>{
+    for(const source of SAMPLE_SOURCES){
+      try{
+        const res=await fetch(source.url,{mode:"cors",cache:"force-cache"});
+        if(!res.ok)throw new Error("HTTP "+res.status);
+        const ab=await res.arrayBuffer();
+        const buf=await c.decodeAudioData(ab.slice(0));
+        sampleBuffer=buf;
+        sampleSourceLabel=source.label;
+        console.info("Loaded guitar sample:",sampleSourceLabel);
+        return buf;
+      }catch(err){
+        console.warn("Could not load "+source.label,err);
+      }
+    }
+    console.warn("Recorded guitar samples unavailable; using string fallback");
+    samplePromise=null;
+    return null;
+  })();
+
+  return samplePromise;
+}
+function sampled(buf,rate,t,g){
+  const c=ctx();if(!c||!buf)return;
+  const src=c.createBufferSource(),gain=c.createGain();
+  src.buffer=buf;
+  src.playbackRate.setValueAtTime(rate,t);
+
+  // Keep the recorded pluck transient and natural decay.
+  gain.gain.setValueAtTime(.0001,t);
+  gain.gain.exponentialRampToValueAtTime(g,t+.008);
+  gain.gain.exponentialRampToValueAtTime(Math.max(.025,g*.18),t+.95);
+  gain.gain.exponentialRampToValueAtTime(.0001,t+2.2);
+
+  src.connect(gain).connect(c.destination);
+  src.start(t);
+  src.stop(t+Math.min(2.2,buf.duration/Math.max(.25,rate)));
+}
+function stringFallback(freq,t,g){
+  const c=ctx();if(!c)return;
+  const o=c.createOscillator(),gain=c.createGain(),filter=c.createBiquadFilter();
+  o.type="triangle";o.frequency.setValueAtTime(freq,t);
+  filter.type="lowpass";filter.frequency.setValueAtTime(Math.min(6000,freq*10),t);
+  filter.Q.value=.7;
+  gain.gain.setValueAtTime(.0001,t);
+  gain.gain.exponentialRampToValueAtTime(g,t+.006);
+  gain.gain.exponentialRampToValueAtTime(.0001,t+.9);
+  o.connect(filter).connect(gain).connect(c.destination);o.start(t);o.stop(t+.95);
+}
+async function play(m){
+  const c=ctx();
+  if(!c){alert("This browser does not support Web Audio API");return;}
+  const r=ratios[current],rate=r.fn/r.fd;
+  const buf=await loadSample();
+  const n=c.currentTime+.035;
+  if(buf){
+    if(m==="ref")sampled(buf,1,n,.28);
+    else if(m==="cmp")sampled(buf,rate,n,.28);
+    else if(m==="both"){sampled(buf,1,n,.19);sampled(buf,rate,n,.19);}
+  }else{
+    if(m==="ref")stringFallback(baseHz,n,.22);
+    else if(m==="cmp")stringFallback(baseHz*rate,n,.22);
+    else if(m==="both"){stringFallback(baseHz,n,.15);stringFallback(baseHz*rate,n,.15);}
+  }
+}
+$("playRef").addEventListener("click",()=>play("ref"));$("playCmp").addEventListener("click",()=>play("cmp"));$("playBoth").addEventListener("click",()=>play("both"));render();
+})();
+</script>
+</body>
+</html>
